@@ -75,15 +75,24 @@ jobs:
           set -uo pipefail
           # Um par (repo, tag) por linha, sem repetir: ffmpeg tem dois arquivos
           # na mesma tag e perguntar duas vezes so gasta cota da API.
+          # DATA, e nao so o nome da tag: o BtbN chama a release mais nova de
+          # "latest" literalmente, entao comparar nomes nao diria nada. Quantos
+          # dias separam o que embarcamos do que existe hoje diz.
           jq -r '.artifacts[] | "\(.upstream_repo)\t\(.upstream_tag)"' MANIFEST.json | sort -u |
           while IFS=$'\t' read -r repo tag; do
-            if gh api "repos/$repo/releases/tags/$tag" --jq '.tag_name' >/dev/null 2>&1; then
-              vive="ainda no upstream"
+            fixada=$(gh api "repos/$repo/releases/tags/$tag" --jq '.published_at' 2>/dev/null || echo "")
+            if [ -n "$fixada" ]; then
+              vive="ainda no upstream, de $(date -u -d "$fixada" +%Y-%m-%d)"
             else
               vive="SUMIU do upstream (o espelho e o que nos salva aqui)"
             fi
-            latest=$(gh api "repos/$repo/releases/latest" --jq '.tag_name' 2>/dev/null || echo "?")
+            nova=$(gh api "repos/$repo/releases/latest" --jq '.published_at' 2>/dev/null || echo "")
             echo "$repo"
             echo "  fixado: $tag  ($vive)"
-            echo "  ultimo: $latest"
+            if [ -n "$nova" ] && [ -n "$fixada" ]; then
+              dias=$(( ( $(date -u -d "$nova" +%s) - $(date -u -d "$fixada" +%s) ) / 86400 ))
+              echo "  ultimo: $(gh api "repos/$repo/releases/latest" --jq '.tag_name'), de $(date -u -d "$nova" +%Y-%m-%d) — ${dias} dia(s) a frente"
+            else
+              echo "  ultimo: nao deu pra comparar"
+            fi
           done
