@@ -57,32 +57,6 @@
       "source": "https://github.com/ggml-org/llama.cpp/tree/b10066"
     },
     {
-      "file": "llama-b9802-bin-win-cpu-x64.zip",
-      "tool": "llama.cpp",
-      "version": "b9802",
-      "platform": "windows-x64-cpu",
-      "sha256": "d55a7ab5036f305476c97d7b2ead0a9806d5e85b6486dfcf86bda25e40c6e442",
-      "bytes": 17322345,
-      "upstream_url": "https://github.com/ggml-org/llama.cpp/releases/download/b9802/llama-b9802-bin-win-cpu-x64.zip",
-      "upstream_repo": "ggml-org/llama.cpp",
-      "upstream_tag": "b9802",
-      "license": "MIT",
-      "source": "https://github.com/ggml-org/llama.cpp/tree/b9802"
-    },
-    {
-      "file": "llama-b9802-bin-ubuntu-x64.tar.gz",
-      "tool": "llama.cpp",
-      "version": "b9802",
-      "platform": "linux-x64-cpu",
-      "sha256": "7d5ad336796b835d78ff1b1663af27a91f5ebcdcbc0923aa11878996fb473a15",
-      "bytes": 15657126,
-      "upstream_url": "https://github.com/ggml-org/llama.cpp/releases/download/b9802/llama-b9802-bin-ubuntu-x64.tar.gz",
-      "upstream_repo": "ggml-org/llama.cpp",
-      "upstream_tag": "b9802",
-      "license": "MIT",
-      "source": "https://github.com/ggml-org/llama.cpp/tree/b9802"
-    },
-    {
       "file": "whisper-v1.9.1-bin-x64.zip",
       "tool": "whisper.cpp",
       "version": "v1.9.1",
@@ -133,6 +107,32 @@
       "upstream_tag": "2026-07-17-94335ab87a",
       "license": "GPL-2.0-or-later",
       "source": "https://github.com/mpv-player/mpv"
+    },
+    {
+      "file": "llama-b10066-bin-win-cpu-x64.zip",
+      "tool": "llama.cpp",
+      "version": "b10066",
+      "platform": "windows-x64-cpu",
+      "sha256": "c4edaaf7f06652e57dd5cf302e719bbc761117e823b6bb3fa34b89945fb32b5f",
+      "bytes": 18007237,
+      "upstream_url": "https://github.com/ggml-org/llama.cpp/releases/download/b10066/llama-b10066-bin-win-cpu-x64.zip",
+      "upstream_repo": "ggml-org/llama.cpp",
+      "upstream_tag": "b10066",
+      "license": "MIT",
+      "source": "https://github.com/ggml-org/llama.cpp/tree/b10066"
+    },
+    {
+      "file": "llama-b10066-bin-ubuntu-x64.tar.gz",
+      "tool": "llama.cpp",
+      "version": "b10066",
+      "platform": "linux-x64-cpu",
+      "sha256": "8387ddb55db54ea0b12e38182b73284df6b0d1b847f3d53e6111c2102c5da331",
+      "bytes": 16066486,
+      "upstream_url": "https://github.com/ggml-org/llama.cpp/releases/download/b10066/llama-b10066-bin-ubuntu-x64.tar.gz",
+      "upstream_repo": "ggml-org/llama.cpp",
+      "upstream_tag": "b10066",
+      "license": "MIT",
+      "source": "https://github.com/ggml-org/llama.cpp/tree/b10066"
     }
   ]
 }
