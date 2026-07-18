@@ -1,0 +1,89 @@
+# Confere o espelho — mensal.
+#
+# Este repositorio virou peca de carga: os `scripts/fetch-*` de 16 apps da suite
+# baixam daqui, nao mais do upstream. Isso resolveu o risco de retencao (o BtbN
+# guarda ~38 releases e poda as diarias), mas criou outro: se um asset daqui
+# sumir ou for trocado, TODOS os 16 CIs quebram de uma vez e ninguem sabe por
+# que. Nada conferia isso ate agora.
+#
+# O alerta nao precisa de infraestrutura nova: o Joao ja recebe e-mail quando
+# uma run falha. Entao este workflow so precisa FICAR VERMELHO na hora certa.
+#
+# Duas perguntas por rodada:
+#   1. o espelho ainda entrega o byte exato que os scripts esperam? (falha = 🔴)
+#   2. o upstream ainda tem a versao que fixamos, e quanto ela envelheceu?
+#      (so relatorio — envelhecer nao e defeito, mas e o que decide a proxima
+#      rodada de atualizacao)
+name: Conferir o espelho
+
+on:
+  schedule:
+    # Dia 1, 06:00 UTC. Mensal porque baixar 482 MB toda semana seria gastar
+    # banda pra reconfirmar bytes que ninguem tocou.
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  conferir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Espelho entrega o byte certo?
+        run: |
+          set -euo pipefail
+          falhas=0
+          total=$(jq '.artifacts | length' MANIFEST.json)
+          rel=$(jq -r '.release' MANIFEST.json)
+          echo "Conferindo $total artefatos da release $rel"
+          for i in $(seq 0 $((total - 1))); do
+            file=$(jq -r ".artifacts[$i].file" MANIFEST.json)
+            want=$(jq -r ".artifacts[$i].sha256" MANIFEST.json)
+            url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${rel}/${file}"
+
+            # Baixa pro stdout e soma direto: 482 MB no total, e o disco do
+            # runner nao precisa segurar nenhum deles inteiro.
+            got=$(curl -fsSL "$url" | sha256sum | cut -d' ' -f1) || got="ERRO-NO-DOWNLOAD"
+
+            if [ "$got" = "$want" ]; then
+              echo "  ok    $file"
+            else
+              echo "  FALHA $file"
+              echo "        esperado: $want"
+              echo "        obtido:   $got"
+              falhas=$((falhas + 1))
+            fi
+          done
+          if [ "$falhas" -gt 0 ]; then
+            echo
+            echo "$falhas artefato(s) do espelho nao batem. Os fetch-* de 16 apps baixam daqui."
+            exit 1
+          fi
+
+      - name: Quanto a versao fixada envelheceu?
+        # Nunca derruba a run: envelhecer nao e defeito. Isto e o relatorio que
+        # decide QUANDO vale uma rodada de atualizacao — o sumico do upstream
+        # tambem so informa, porque o espelho ja cobre esse caso (e a razao de
+        # ele existir).
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          # Um par (repo, tag) por linha, sem repetir: ffmpeg tem dois arquivos
+          # na mesma tag e perguntar duas vezes so gasta cota da API.
+          jq -r '.artifacts[] | "\(.upstream_repo)\t\(.upstream_tag)"' MANIFEST.json | sort -u |
+          while IFS=$'\t' read -r repo tag; do
+            if gh api "repos/$repo/releases/tags/$tag" --jq '.tag_name' >/dev/null 2>&1; then
+              vive="ainda no upstream"
+            else
+              vive="SUMIU do upstream (o espelho e o que nos salva aqui)"
+            fi
+            latest=$(gh api "repos/$repo/releases/latest" --jq '.tag_name' 2>/dev/null || echo "?")
+            echo "$repo"
+            echo "  fixado: $tag  ($vive)"
+            echo "  ultimo: $latest"
+          done
