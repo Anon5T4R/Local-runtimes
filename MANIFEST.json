@@ -134,5 +134,6 @@
       "license": "MIT",
       "source": "https://github.com/ggml-org/llama.cpp/tree/b10066"
     }
-  ]
+  ],
+  "retired_note": "Os artefatos llama b9802 continuam NA RELEASE mas saíram desta lista: nenhum app aponta mais pra eles desde 2026-07-18 (o LocalCode subiu pra b10066). Ficam porque as tags antigas do LocalCode ainda os referenciam — apagá-los tornaria um rebuild daquelas versões impossível. Fora da lista de propósito: o workflow de conferência valida o que a suíte USA hoje, e um artefato que ninguém baixa não deve derrubar a run se sumir."
 }
