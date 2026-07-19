@@ -216,6 +216,19 @@
       "license": "Apache-2.0",
       "source": "https://github.com/advimman/lama",
       "note": "Opcao pesada de inpainting (208MB) ao lado do MI-GAN; decidido em 2026-07-19 manter como OPCAO."
+    },
+    {
+      "file": "mediapipe-selfie-segmentation.onnx",
+      "tool": "mediapipe-selfie-segmentation",
+      "version": "onnx-community/be49485",
+      "platform": "any",
+      "sha256": "3241ac4ad8aa35bdaf33946776db29f7c283a413aa0b0dacb9483594b4531aad",
+      "bytes": 462352,
+      "upstream_url": "https://huggingface.co/onnx-community/mediapipe_selfie_segmentation/resolve/be49485c8e027524be38591817fc5cd31bd9d00e/onnx/model.onnx",
+      "upstream_repo": "onnx-community/mediapipe_selfie_segmentation",
+      "upstream_tag": "be49485c8e027524be38591817fc5cd31bd9d00e",
+      "license": "Apache-2.0",
+      "source": "https://github.com/google-ai-edge/mediapipe/blob/master/docs/solutions/selfie_segmentation.md"
     }
   ],
   "retired_note": "Os artefatos llama b9802 continuam NA RELEASE mas saíram desta lista: nenhum app aponta mais pra eles desde 2026-07-18 (o LocalCode subiu pra b10066). Ficam porque as tags antigas do LocalCode ainda os referenciam — apagá-los tornaria um rebuild daquelas versões impossível. Fora da lista de propósito: o workflow de conferência valida o que a suíte USA hoje, e um artefato que ninguém baixa não deve derrubar a run se sumir."
