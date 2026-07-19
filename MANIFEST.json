@@ -109,6 +109,19 @@
       "source": "https://github.com/mpv-player/mpv"
     },
     {
+      "file": "isnet-general-use.onnx",
+      "tool": "isnet",
+      "version": "general-use",
+      "platform": "any",
+      "sha256": "60920e99c45464f2ba57bee2ad08c919a52bbf852739e96947fbb4358c0d964a",
+      "bytes": 178648008,
+      "upstream_url": "https://github.com/danielgatis/rembg/releases/download/v0.0.0/isnet-general-use.onnx",
+      "upstream_repo": "danielgatis/rembg",
+      "upstream_tag": "v0.0.0",
+      "license": "Apache-2.0",
+      "source": "https://github.com/xuebinqin/DIS"
+    },
+    {
       "file": "llama-b10066-bin-win-cpu-x64.zip",
       "tool": "llama.cpp",
       "version": "b10066",
