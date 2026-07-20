@@ -229,6 +229,48 @@
       "upstream_tag": "be49485c8e027524be38591817fc5cd31bd9d00e",
       "license": "Apache-2.0",
       "source": "https://github.com/google-ai-edge/mediapipe/blob/master/docs/solutions/selfie_segmentation.md"
+    },
+    {
+      "file": "tessdata_fast-87416418-por.traineddata",
+      "tool": "tessdata_fast",
+      "version": "tessdata_fast/87416418",
+      "platform": "any",
+      "sha256": "c4932b937207a9514b7514d518b931a99938c02a28a5a5a553f8599ed58b7deb",
+      "bytes": 1982756,
+      "upstream_url": "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/87416418657359cb625c412a48b6e1d6d41c29bd/por.traineddata",
+      "upstream_repo": "tesseract-ocr/tessdata_fast",
+      "upstream_tag": "87416418657359cb625c412a48b6e1d6d41c29bd",
+      "license": "Apache-2.0",
+      "source": "https://github.com/tesseract-ocr/tessdata_fast",
+      "note": "Modelo LSTM de OCR (Portugues) usado pelo LocalImage. Espelhado em 2026-07-20: o commit fixo ja garantia IMUTABILIDADE, mas nao DISPONIBILIDADE — se o repo do tesseract sumir ou bloquear o runner, o build para. Espelho resolve a segunda metade."
+    },
+    {
+      "file": "tessdata_fast-87416418-eng.traineddata",
+      "tool": "tessdata_fast",
+      "version": "tessdata_fast/87416418",
+      "platform": "any",
+      "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+      "bytes": 4113088,
+      "upstream_url": "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/87416418657359cb625c412a48b6e1d6d41c29bd/eng.traineddata",
+      "upstream_repo": "tesseract-ocr/tessdata_fast",
+      "upstream_tag": "87416418657359cb625c412a48b6e1d6d41c29bd",
+      "license": "Apache-2.0",
+      "source": "https://github.com/tesseract-ocr/tessdata_fast",
+      "note": "Modelo LSTM de OCR (Ingles) usado pelo LocalImage. Espelhado em 2026-07-20: o commit fixo ja garantia IMUTABILIDADE, mas nao DISPONIBILIDADE — se o repo do tesseract sumir ou bloquear o runner, o build para. Espelho resolve a segunda metade."
+    },
+    {
+      "file": "tessdata_fast-87416418-spa.traineddata",
+      "tool": "tessdata_fast",
+      "version": "tessdata_fast/87416418",
+      "platform": "any",
+      "sha256": "6f2e04d02774a18f01bed44b1111f2cd7f3ba7ac9dc4373cd3f898a40ea6b464",
+      "bytes": 2294433,
+      "upstream_url": "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/87416418657359cb625c412a48b6e1d6d41c29bd/spa.traineddata",
+      "upstream_repo": "tesseract-ocr/tessdata_fast",
+      "upstream_tag": "87416418657359cb625c412a48b6e1d6d41c29bd",
+      "license": "Apache-2.0",
+      "source": "https://github.com/tesseract-ocr/tessdata_fast",
+      "note": "Modelo LSTM de OCR (Espanhol) usado pelo LocalImage. Espelhado em 2026-07-20: o commit fixo ja garantia IMUTABILIDADE, mas nao DISPONIBILIDADE — se o repo do tesseract sumir ou bloquear o runner, o build para. Espelho resolve a segunda metade."
     }
   ],
   "retired_note": "Os artefatos llama b9802 continuam NA RELEASE mas saíram desta lista: nenhum app aponta mais pra eles desde 2026-07-18 (o LocalCode subiu pra b10066). Ficam porque as tags antigas do LocalCode ainda os referenciam — apagá-los tornaria um rebuild daquelas versões impossível. Fora da lista de propósito: o workflow de conferência valida o que a suíte USA hoje, e um artefato que ninguém baixa não deve derrubar a run se sumir."
