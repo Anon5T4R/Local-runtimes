@@ -1,7 +1,7 @@
 # Local-runtimes
 
 Espelho dos **binários de terceiro** que os aplicativos da suíte Local embarcam nos seus
-instaladores: ffmpeg, llama.cpp, whisper.cpp, pandoc e mpv.
+instaladores: ffmpeg, llama.cpp, whisper.cpp, pandoc, mpv e Stockfish.
 
 **Os binários aqui são builds NÃO MODIFICADOS**, copiados dos projetos originais. Este repositório
 não compila nada — ele existe só para que os artefatos continuem disponíveis.
@@ -55,14 +55,26 @@ sobre eles.
 | pandoc | GPL-2.0-or-later | <https://github.com/jgm/pandoc> — tag `3.10` |
 | llama.cpp | MIT | <https://github.com/ggml-org/llama.cpp> — tags `b10066`, `b9802` |
 | whisper.cpp | MIT | <https://github.com/ggml-org/whisper.cpp> — tag `v1.9.1` |
+| Stockfish | GPL-3.0-or-later | <https://github.com/official-stockfish/Stockfish> — tag `sf_18` |
 
-**ffmpeg, mpv e pandoc são copyleft.** Como a redistribuição de binário GPL exige que o código-fonte
+**ffmpeg, mpv, pandoc e Stockfish são copyleft.** Como a redistribuição de binário GPL exige que o código-fonte
 correspondente esteja disponível, o `MANIFEST.json` registra, para cada artefato, a **tag exata** do
 fonte e a **build original** de onde o binário veio — e os projetos de build (BtbN, zhongfly)
 publicam a receita completa de compilação.
 
 Nenhum binário aqui foi modificado. Quem quiser reproduzi-los deve usar o fonte na tag indicada e a
 receita do projeto de build correspondente.
+
+O **Stockfish** é caso especial em dois pontos, e os dois estão registrados no `MANIFEST.json`:
+
+1. As **redes NNUE** (`nn-c288c895ea92`, `nn-37f18f62d772`) não são arquivo separado — vão embutidas
+   no executável, e são cobertas pela mesma GPL-3 do resto.
+2. Os assets são **oficiais do próprio projeto** (não de um empacotador terceiro como BtbN ou
+   zhongfly), então a build e o fonte saem da mesma tag `sf_18` — a procedência é mais curta que a
+   do ffmpeg.
+
+O app que o consome (**LocalChessPGN**) roda o Stockfish como **processo separado por UCI**, nunca
+linkado.
 
 ## O que deliberadamente NÃO está espelhado
 
