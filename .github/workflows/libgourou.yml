@@ -155,12 +155,13 @@ jobs:
       - name: Reunir exes + DLLs
         shell: msys2 {0}
         run: |
-          set -euo pipefail
           mkdir -p pkg
           cp libgourou/utils/*.exe pkg/
+          echo "=== ldd de exemplo (acsmdownloader) ==="
+          ldd pkg/acsmdownloader.exe || true
           for exe in pkg/*.exe; do
-            ldd "$exe" | awk '/=>/ {print $3}' | grep -iE '/mingw64/bin/' | sort -u | while read -r dll; do
-              cp -n "$dll" pkg/ || true
+            ldd "$exe" 2>/dev/null | awk '{print $3}' | grep -iE 'mingw64' | sort -u | while read -r dll; do
+              if [ -f "$dll" ]; then cp -n "$dll" pkg/ 2>/dev/null || true; fi
             done
           done
           echo "--- conteudo do pacote ---"
