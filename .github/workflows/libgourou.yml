@@ -143,7 +143,10 @@ jobs:
           echo "=== forca o -include nos Makefiles ==="
           sed -i 's|-I./lib/updfparser/include|-I./lib/updfparser/include -include $(CURDIR)/win_compat.h|' Makefile
           sed -i 's|^CXXFLAGS=-Wall -fPIC|CXXFLAGS=-Wall -fPIC -include $(ROOT)/win_compat.h|' utils/Makefile
-          grep -n "win_compat" Makefile utils/Makefile
+          # adept_loan_mgt usa d_type/DT_LNK (nao existe no Windows) e NAO e usado
+          # pelo fluxo do app (so activate/download/remove).
+          sed -i 's|^TARGET_BINARIES=acsmdownloader adept_activate adept_remove adept_loan_mgt|TARGET_BINARIES=acsmdownloader adept_activate adept_remove|' utils/Makefile
+          grep -n "win_compat\|TARGET_BINARIES" Makefile utils/Makefile
 
           echo "=== build libgourou + utils ==="
           make CROSS=x86_64-w64-mingw32- BUILD_UTILS=1 BUILD_STATIC=1 STATIC_UTILS=1 BUILD_SHARED=0
