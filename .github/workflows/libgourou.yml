@@ -102,6 +102,14 @@ jobs:
           #define TCSANOW 0
           #define ICANON 2
           #define ECHO 8
+
+          /* sys/utsname.h nao existe no MinGW */
+          struct utsname { char sysname[65]; char nodename[65]; char release[65]; char version[65]; char machine[65]; };
+          static inline int uname(struct utsname* u) {
+              strcpy(u->sysname, "Windows"); strcpy(u->nodename, "localhost");
+              strcpy(u->release, ""); strcpy(u->version, ""); strcpy(u->machine, "x86_64");
+              return 0;
+          }
           #endif
           #endif
           EOF
@@ -109,6 +117,7 @@ jobs:
           echo "=== remove includes inexistentes no MinGW ==="
           sed -i 's|#include <arpa/inet.h>|/* via win_compat.h */|' src/libgourou.cpp
           sed -i 's|#include <termios.h>|/* via win_compat.h */|' utils/adept_activate.cpp
+          sed -i 's|#include <sys/utsname.h>|/* via win_compat.h */|' src/device.cpp
 
           echo "=== forca o -include nos Makefiles ==="
           sed -i 's|-I./lib/updfparser/include|-I./lib/updfparser/include -include $(CURDIR)/win_compat.h|' Makefile
