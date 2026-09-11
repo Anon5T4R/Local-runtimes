@@ -1,0 +1,77 @@
+name: build-libgourou-windows
+
+# Builda os utils do libgourou (v0.8.10) para Windows x64 via MSYS2/MinGW64 e
+# publica o zip como artefato deste run.
+#
+# Por que aqui (repo do espelho): o Windows NAO tem binario oficial do libgourou
+# (o upstream so publica Debian + AppImage Linux), entao somos nos que
+# buildamos. Este repo ja e quem hospeda os runtimes dos apps da suite.
+#
+# Depois do run: baixar o artefato, subir na release do espelho e anotar o
+# sha256 no MANIFEST.json + nos scripts fetch-libgourou.* do LocalConverter.
+#
+# Disparo: manual (workflow_dispatch).
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: MSYS2 (MINGW64) + dependencias
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            git
+            make
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-libcurl
+            mingw-w64-x86_64-openssl
+            mingw-w64-x86_64-libzip
+            mingw-w64-x86_64-pugixml
+            mingw-w64-x86_64-zlib
+
+      # STATIC_UTILS=1 so torna o libgourou.a estatico nos utils; as deps
+      # externas (curl/openssl/zip/pugixml) seguem dinamicas -> o passo de DLLs
+      # abaixo junta os .dll do /mingw64/bin que os exes precisam.
+      # Plano B de origem se o forge bloquear IP de runner: o mirror
+      # github.com/rledisez/libgourou (checar se tem a tag v0.8.10).
+      - name: Clone + build (v0.8.10)
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch v0.8.10 https://forge.soutade.fr/soutade/libgourou.git
+          cd libgourou
+          make CROSS=x86_64-w64-mingw32- BUILD_UTILS=1 BUILD_STATIC=1 STATIC_UTILS=1
+          ls -la utils
+
+      - name: Reunir exes + DLLs
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          mkdir -p pkg
+          cp libgourou/utils/*.exe pkg/
+          for exe in pkg/*.exe; do
+            ldd "$exe" | awk '/=>/ {print $3}' | grep -iE '/mingw64/bin/' | sort -u | while read -r dll; do
+              cp -n "$dll" pkg/ || true
+            done
+          done
+          echo "--- conteudo do pacote ---"
+          ls -la pkg
+
+      - name: Zip
+        shell: pwsh
+        run: |
+          Compress-Archive -Path pkg/* -DestinationPath libgourou_utils-0.8.10-windows-x64.zip -Force
+          Get-Item libgourou_utils-0.8.10-windows-x64.zip | Select-Object Name, Length
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: libgourou-win-x64
+          path: libgourou_utils-0.8.10-windows-x64.zip
+          if-no-files-found: error
+          retention-days: 30
