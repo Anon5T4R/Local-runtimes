@@ -355,6 +355,34 @@
       "license": "GPL-3.0-or-later",
       "source": "https://github.com/official-stockfish/Stockfish/tree/sf_18",
       "note": "Engine de xadrez do LocalChessPGN. Build oficial NAO modificada, escolhida por nivel de instrucao em tempo de execucao (avx2 -> bmi2 -> sse41-popcnt como piso). As redes NNUE (nn-c288c895ea92 e nn-37f18f62d772) vao EMBUTIDAS no binario e sao cobertas pela mesma GPL-3. Usada como PROCESSO SEPARADO por UCI (stdin/stdout), nunca linkada. Espelhado em 2026-07-20; sha256 conferido no download, na re-leitura do espelho e antes de extrair."
+    },
+    {
+      "file": "libgourou_utils-0.8.10-windows-x64.zip",
+      "tool": "libgourou",
+      "version": "0.8.10",
+      "platform": "windows-x64",
+      "sha256": "dde7f255c41c40d7ab1ae8b304eca190d9d82a2a72fc58536eebc8ddfaccf5fa",
+      "bytes": 8988618,
+      "upstream_url": "https://forge.soutade.fr/soutade/libgourou/archive/v0.8.10.tar.gz",
+      "upstream_repo": "soutade/libgourou",
+      "upstream_tag": "v0.8.10",
+      "license": "LGPL-3.0-or-later (lib) / BSD-3-Clause (utils)",
+      "source": "https://forge.soutade.fr/soutade/libgourou",
+      "note": "Motor do ACSM do LocalConverter. ATENCAO: build NOSSO (MinGW/MSYS2) — o upstream NAO publica binario Windows. Porte minimo (memmem/strptime/mkdir/termios/utsname/passwd/realpath + arpa/inet) documentado em .github/workflows/libgourou.yml. Roda como PROCESSO SEPARADO (std::process::Command), nunca linkado. Espelhado em 2026-09-11."
+    },
+    {
+      "file": "libgourou_utils-0.8.10-x86_64.AppImage.tar.gz",
+      "tool": "libgourou",
+      "version": "0.8.10",
+      "platform": "linux-x64",
+      "sha256": "b8f34e95052fe2b4a7e956afb6c1baae7d7becabe62eb795cf610af5b6f3da93",
+      "bytes": 15120327,
+      "upstream_url": "https://soutade.fr/files/libgourou_utils-0.8.10-x86_64.AppImage.tar.gz",
+      "upstream_repo": "soutade/libgourou",
+      "upstream_tag": "v0.8.10",
+      "license": "LGPL-3.0-or-later (lib) / BSD-3-Clause (utils)",
+      "source": "https://forge.soutade.fr/soutade/libgourou",
+      "note": "Motor do ACSM do LocalConverter. AppImage OFICIAL do upstream (utils + libgourou.so empacotados). Roda como PROCESSO SEPARADO, nunca linkado. Espelhado em 2026-09-11."
     }
   ],
   "retired_note": "Os artefatos llama b9802 continuam NA RELEASE mas saíram desta lista: nenhum app aponta mais pra eles desde 2026-07-18 (o LocalCode subiu pra b10066). Ficam porque as tags antigas do LocalCode ainda os referenciam — apagá-los tornaria um rebuild daquelas versões impossível. Fora da lista de propósito: o workflow de conferência valida o que a suíte USA hoje, e um artefato que ninguém baixa não deve derrubar a run se sumir."
