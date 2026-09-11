@@ -79,8 +79,7 @@ jobs:
               for (; p <= e; ++p) if (memcmp(p, n, nl) == 0) return (void*)p;
               return 0;
           }
-          static inline uint16_t htons(uint16_t v) { return (uint16_t)((v << 8) | (v >> 8)); }
-          static inline uint32_t htonl(uint32_t v) { return ((v & 0xff) << 24) | ((v & 0xff00) << 8) | ((v >> 8) & 0xff00) | (v >> 24); }
+          static inline uint16_t gourou_htons(uint16_t v) { return (uint16_t)((v << 8) | (v >> 8)); }
 
           /* POSIX mkdir(path, mode) -> _mkdir(path) no Windows */
           #define mkdir(p, m) _mkdir(p)
@@ -130,6 +129,7 @@ jobs:
           sed -i 's|#include <sys/utsname.h>|/* via win_compat.h */|' src/device.cpp
           sed -i 's|#include <pwd.h>|/* via win_compat.h */|' src/device.cpp
           sed -i 's|uid_t uid = getuid();|unsigned int uid = getuid();|' src/device.cpp
+          sed -i 's|htons(length)|gourou_htons(length)|' src/libgourou.cpp
 
           echo "=== forca o -include nos Makefiles ==="
           sed -i 's|-I./lib/updfparser/include|-I./lib/updfparser/include -include $(CURDIR)/win_compat.h|' Makefile
