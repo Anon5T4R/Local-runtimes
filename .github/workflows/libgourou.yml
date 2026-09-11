@@ -4,13 +4,16 @@ name: build-libgourou-windows
 # publica o zip como artefato deste run.
 #
 # Por que aqui (repo do espelho): o Windows NAO tem binario oficial do libgourou
-# (o upstream so publica Debian + AppImage Linux), entao somos nos que
-# buildamos. Este repo ja e quem hospeda os runtimes dos apps da suite.
+# (o upstream so publica Debian + AppImage Linux).
+#
+# Na verdade o libgourou NAO compila no Windows out-of-the-box; este workflow
+# aplica um PORTE minimo (2026-09-11), so em 2 arquivos:
+#   * libgourou.cpp: <arpa/inet.h> (POSIX) -> htons portavel em _WIN32.
+#   * uPDFParser.cpp: memmem (GNU) -> shim; casts (unsigned long)ptr -> uintptr_t.
+# O device.cpp JA tem fallback de MAC estatico para plataformas nao-Linux.
 #
 # Depois do run: baixar o artefato, subir na release do espelho e anotar o
 # sha256 no MANIFEST.json + nos scripts fetch-libgourou.* do LocalConverter.
-#
-# Disparo: manual (workflow_dispatch).
 
 on:
   workflow_dispatch:
@@ -28,6 +31,7 @@ jobs:
           install: >-
             git
             make
+            perl
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-curl
             mingw-w64-x86_64-openssl
@@ -35,18 +39,33 @@ jobs:
             mingw-w64-x86_64-pugixml
             mingw-w64-x86_64-zlib
 
-      # STATIC_UTILS=1 so torna o libgourou.a estatico nos utils; as deps
-      # externas (curl/openssl/zip/pugixml) seguem dinamicas -> o passo de DLLs
-      # abaixo junta os .dll do /mingw64/bin que os exes precisam.
-      # Plano B de origem se o forge bloquear IP de runner: o mirror
-      # github.com/rledisez/libgourou (checar se tem a tag v0.8.10).
-      - name: Clone + build (v0.8.10)
+      - name: Clone + patch + build (v0.8.10)
         shell: msys2 {0}
         run: |
           set -euo pipefail
           git clone --depth 1 --branch v0.8.10 https://forge.soutade.fr/soutade/libgourou.git
           cd libgourou
-          make CROSS=x86_64-w64-mingw32- BUILD_UTILS=1 BUILD_STATIC=1 STATIC_UTILS=1
+
+          # Pre-clona o uPDFParser (lib interno). Se lib/updfparser existir, o
+          # top Makefile pula ./scripts/setup.sh (alvo `lib` ja satisfeito) — o
+          # que nos deixa patchá-lo antes de compilar.
+          mkdir -p lib
+          git clone --depth 1 https://forge.soutade.fr/soutade/uPDFParser.git lib/updfparser
+
+          echo "=== patch uPDFParser: memmem + casts ==="
+          perl -0pi -e 's|#include <string\.h>|#include <string.h>\n#ifdef _WIN32\n#include <stdint.h>\nstatic void* memmem(const void* _h, size_t _hl, const void* _n, size_t _nl) {\n    if (_nl == 0) return (void*)_h;\n    const char* p = (const char*)_h; const char* e = p + _hl - _nl;\n    for (; p <= e; ++p) if (memcmp(p, _n, _nl) == 0) return (void*)p;\n    return 0;\n}\n#endif|' lib/updfparser/src/uPDFParser.cpp
+          sed -i 's/(unsigned long)subs/(uintptr_t)subs/g; s/(unsigned long)buffer/(uintptr_t)buffer/g' lib/updfparser/src/uPDFParser.cpp
+          grep -n "memmem\|uintptr_t" lib/updfparser/src/uPDFParser.cpp
+
+          echo "=== build uPDFParser ==="
+          make -C lib/updfparser BUILD_STATIC=1 BUILD_SHARED=0
+
+          echo "=== patch libgourou: arpa/inet.h -> htons portavel ==="
+          perl -0pi -e 's|#include <arpa/inet\.h>|#ifdef _WIN32\n#include <stdint.h>\nstatic inline uint16_t htons(uint16_t v){ return (uint16_t)((v << 8) \| (v >> 8)); }\n#else\n#include <arpa/inet.h>\n#endif|' src/libgourou.cpp
+          grep -n "htons\|arpa" src/libgourou.cpp || true
+
+          echo "=== build libgourou + utils ==="
+          make CROSS=x86_64-w64-mingw32- BUILD_UTILS=1 BUILD_STATIC=1 STATIC_UTILS=1 BUILD_SHARED=0
           ls -la utils
 
       - name: Reunir exes + DLLs
