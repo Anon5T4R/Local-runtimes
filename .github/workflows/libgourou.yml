@@ -6,10 +6,13 @@ name: build-libgourou-windows
 # Por que aqui (repo do espelho): o Windows NAO tem binario oficial do libgourou
 # (o upstream so publica Debian + AppImage Linux).
 #
-# Na verdade o libgourou NAO compila no Windows out-of-the-box; este workflow
-# aplica um PORTE minimo (2026-09-11), so em 2 arquivos:
-#   * libgourou.cpp: <arpa/inet.h> (POSIX) -> htons portavel em _WIN32.
-#   * uPDFParser.cpp: memmem (GNU) -> shim; casts (unsigned long)ptr -> uintptr_t.
+# O libgourou NAO compila no Windows out-of-the-box; este workflow aplica um
+# PORTE minimo (2026-09-11):
+#   * win_compat.h (forcado com -include nos Makefiles do libgourou e dos utils):
+#     memmem, htons/htonl, mkdir(path,mode)->_mkdir, strptime minimo e shim de
+#     termios.
+#   * remove os #include que nao existem no MinGW (arpa/inet.h, termios.h).
+#   * uPDFParser.cpp (build separado): memmem + casts (unsigned long)ptr.
 # O device.cpp JA tem fallback de MAC estatico para plataformas nao-Linux.
 #
 # Depois do run: baixar o artefato, subir na release do espelho e anotar o
@@ -55,14 +58,62 @@ jobs:
           echo "=== patch uPDFParser: memmem + casts ==="
           perl -0pi -e 's|#include <string\.h>|#include <string.h>\n#ifdef _WIN32\n#include <stdint.h>\nstatic void* memmem(const void* _h, size_t _hl, const void* _n, size_t _nl) {\n    if (_nl == 0) return (void*)_h;\n    const char* p = (const char*)_h; const char* e = p + _hl - _nl;\n    for (; p <= e; ++p) if (memcmp(p, _n, _nl) == 0) return (void*)p;\n    return 0;\n}\n#endif|' lib/updfparser/src/uPDFParser.cpp
           sed -i 's/(unsigned long)subs/(uintptr_t)subs/g; s/(unsigned long)buffer/(uintptr_t)buffer/g' lib/updfparser/src/uPDFParser.cpp
-          grep -n "memmem\|uintptr_t" lib/updfparser/src/uPDFParser.cpp
 
           echo "=== build uPDFParser ==="
           make -C lib/updfparser BUILD_STATIC=1 BUILD_SHARED=0
 
-          echo "=== patch libgourou: arpa/inet.h -> htons portavel ==="
-          perl -0pi -e 's|#include <arpa/inet\.h>|#ifdef _WIN32\n#include <stdint.h>\nstatic inline uint16_t htons(uint16_t v){ return (uint16_t)((v << 8) \| (v >> 8)); }\n#else\n#include <arpa/inet.h>\n#endif|' src/libgourou.cpp
-          grep -n "htons\|arpa" src/libgourou.cpp || true
+          echo "=== win_compat.h ==="
+          cat > win_compat.h <<'EOF'
+          #ifndef WIN_COMPAT_H
+          #define WIN_COMPAT_H
+          #ifdef _WIN32
+          #include <string.h>
+          #include <stdio.h>
+          #include <stdint.h>
+          #include <direct.h>
+          #include <time.h>
+
+          static inline void* memmem(const void* h, size_t hl, const void* n, size_t nl) {
+              if (nl == 0) return (void*)h;
+              const char* p = (const char*)h; const char* e = p + hl - nl;
+              for (; p <= e; ++p) if (memcmp(p, n, nl) == 0) return (void*)p;
+              return 0;
+          }
+          static inline uint16_t htons(uint16_t v) { return (uint16_t)((v << 8) | (v >> 8)); }
+          static inline uint32_t htonl(uint32_t v) { return ((v & 0xff) << 24) | ((v & 0xff00) << 8) | ((v >> 8) & 0xff00) | (v >> 24); }
+
+          /* POSIX mkdir(path, mode) -> _mkdir(path) no Windows */
+          #define mkdir(p, m) _mkdir(p)
+
+          /* strptime minimo: so o formato ISO dos metadados (sufixo %z/%Z ignorado) */
+          static inline char* strptime(const char* s, const char* format, struct tm* tm) {
+              (void)format;
+              int Y = 0, Mo = 0, D = 0, H = 0, Mi = 0, S = 0;
+              if (sscanf(s, "%d-%d-%dT%d:%d:%d", &Y, &Mo, &D, &H, &Mi, &S) < 3) return 0;
+              tm->tm_year = Y - 1900; tm->tm_mon = Mo - 1; tm->tm_mday = D;
+              tm->tm_hour = H; tm->tm_min = Mi; tm->tm_sec = S; tm->tm_isdst = -1;
+              return (char*)s;
+          }
+
+          /* termios: so o getch() de senha usa; com -a nunca e chamado */
+          struct termios { unsigned long c_lflag; };
+          #define tcgetattr(fd, t) 0
+          #define tcsetattr(fd, act, t) 0
+          #define TCSANOW 0
+          #define ICANON 2
+          #define ECHO 8
+          #endif
+          #endif
+          EOF
+
+          echo "=== remove includes inexistentes no MinGW ==="
+          sed -i 's|#include <arpa/inet.h>|/* via win_compat.h */|' src/libgourou.cpp
+          sed -i 's|#include <termios.h>|/* via win_compat.h */|' utils/adept_activate.cpp
+
+          echo "=== forca o -include nos Makefiles ==="
+          sed -i 's|-I./lib/updfparser/include|-I./lib/updfparser/include -include $(CURDIR)/win_compat.h|' Makefile
+          sed -i 's|^CXXFLAGS=-Wall -fPIC|CXXFLAGS=-Wall -fPIC -include $(ROOT)/win_compat.h|' utils/Makefile
+          grep -n "win_compat" Makefile utils/Makefile
 
           echo "=== build libgourou + utils ==="
           make CROSS=x86_64-w64-mingw32- BUILD_UTILS=1 BUILD_STATIC=1 STATIC_UTILS=1 BUILD_SHARED=0
