@@ -69,6 +69,7 @@ jobs:
           #ifdef _WIN32
           #include <string.h>
           #include <stdio.h>
+          #include <stdlib.h>
           #include <stdint.h>
           #include <direct.h>
           #include <time.h>
@@ -118,6 +119,14 @@ jobs:
               (void)uid;
               static struct passwd pw = { (char*)"user", (char*)".", (char*)"", 0, 0 };
               return &pw;
+          }
+
+          /* realpath (POSIX) -> _fullpath */
+          static inline char* realpath(const char* path, char* resolved) {
+              char* buf = resolved ? resolved : (char*)malloc(260);
+              if (!buf) return 0;
+              if (_fullpath(buf, path, 260) == 0) { if (!resolved) free(buf); return 0; }
+              return buf;
           }
           #endif
           #endif
