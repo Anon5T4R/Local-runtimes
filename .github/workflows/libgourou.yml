@@ -110,6 +110,16 @@ jobs:
               strcpy(u->release, ""); strcpy(u->version, ""); strcpy(u->machine, "x86_64");
               return 0;
           }
+
+          /* pwd.h nao existe no MinGW. O branch que usa getpwuid e morto no
+             nosso fluxo (sempre ativamos com -r / serial aleatorio). */
+          struct passwd { char* pw_name; char* pw_dir; char* pw_shell; int pw_uid; int pw_gid; };
+          static inline uid_t getuid(void) { return 0; }
+          static inline struct passwd* getpwuid(uid_t uid) {
+              (void)uid;
+              static struct passwd pw = { (char*)"user", (char*)".", (char*)"", 0, 0 };
+              return &pw;
+          }
           #endif
           #endif
           EOF
@@ -118,6 +128,7 @@ jobs:
           sed -i 's|#include <arpa/inet.h>|/* via win_compat.h */|' src/libgourou.cpp
           sed -i 's|#include <termios.h>|/* via win_compat.h */|' utils/adept_activate.cpp
           sed -i 's|#include <sys/utsname.h>|/* via win_compat.h */|' src/device.cpp
+          sed -i 's|#include <pwd.h>|/* via win_compat.h */|' src/device.cpp
 
           echo "=== forca o -include nos Makefiles ==="
           sed -i 's|-I./lib/updfparser/include|-I./lib/updfparser/include -include $(CURDIR)/win_compat.h|' Makefile
