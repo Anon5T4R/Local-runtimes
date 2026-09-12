@@ -168,6 +168,11 @@ jobs:
           done
           echo "--- conteudo do pacote ---"
           ls -la pkg
+          echo "=== ossl-modules (provider legacy do OpenSSL) ==="
+          ls -la /mingw64/lib/ossl-modules/ 2>/dev/null || echo "sem /mingw64/lib/ossl-modules"
+          cp /mingw64/lib/ossl-modules/*.dll pkg/ 2>/dev/null || true
+          echo "--- pacote final ---"
+          ls -la pkg
 
       - name: Zip
         shell: pwsh
