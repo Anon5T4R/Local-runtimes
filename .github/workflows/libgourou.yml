@@ -175,6 +175,11 @@ jobs:
           echo "=== ossl-modules (provider legacy do OpenSSL) ==="
           ls -la /mingw64/lib/ossl-modules/ 2>/dev/null || echo "sem /mingw64/lib/ossl-modules"
           cp /mingw64/lib/ossl-modules/*.dll pkg/ 2>/dev/null || true
+          echo "=== CA bundle (libcurl/OpenSSL) ==="
+          for f in /mingw64/etc/ssl/certs/ca-bundle.crt /mingw64/etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt; do
+            if [ -f "$f" ]; then echo "achou $f"; cp "$f" pkg/ca-bundle.crt; break; fi
+          done
+          ls -la pkg/ca-bundle.crt 2>/dev/null || echo "SEM CA BUNDLE"
           echo "--- pacote final ---"
           ls -la pkg
 
