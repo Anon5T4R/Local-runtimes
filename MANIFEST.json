@@ -361,14 +361,14 @@
       "tool": "libgourou",
       "version": "0.8.10",
       "platform": "windows-x64",
-      "sha256": "dde7f255c41c40d7ab1ae8b304eca190d9d82a2a72fc58536eebc8ddfaccf5fa",
-      "bytes": 8988618,
+      "sha256": "5a3610f979c95b35e455661303b57333ed17094a5719051acc096eff7e88b9b9",
+      "bytes": 9146515,
       "upstream_url": "https://forge.soutade.fr/soutade/libgourou/archive/v0.8.10.tar.gz",
       "upstream_repo": "soutade/libgourou",
       "upstream_tag": "v0.8.10",
       "license": "LGPL-3.0-or-later (lib) / BSD-3-Clause (utils)",
       "source": "https://forge.soutade.fr/soutade/libgourou",
-      "note": "Motor do ACSM do LocalConverter. ATENCAO: build NOSSO (MinGW/MSYS2) — o upstream NAO publica binario Windows. Porte minimo (memmem/strptime/mkdir/termios/utsname/passwd/realpath + arpa/inet) documentado em .github/workflows/libgourou.yml. Roda como PROCESSO SEPARADO (std::process::Command), nunca linkado. Espelhado em 2026-09-11."
+      "note": "Motor do ACSM do LocalConverter. ATENCAO: build NOSSO (MinGW/MSYS2) — o upstream NAO publica binario Windows. Porte minimo (memmem/strptime/mkdir/termios/utsname/passwd/realpath + arpa/inet + path absoluto do adept_activate) documentado em .github/workflows/libgourou.yml. Inclui o provider legacy do OpenSSL (legacy.dll) e o CA bundle (ca-bundle.crt) — o app aponta OPENSSL_MODULES/CURL_CA_BUNDLE pra pasta. Roda como PROCESSO SEPARADO (std::process::Command), nunca linkado. Espelhado em 2026-09-11 (rev 2)."
     },
     {
       "file": "libgourou_utils-0.8.10-x86_64.AppImage.tar.gz",
