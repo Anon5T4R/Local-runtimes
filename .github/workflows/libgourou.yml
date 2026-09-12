@@ -139,6 +139,10 @@ jobs:
           sed -i 's|#include <pwd.h>|/* via win_compat.h */|' src/device.cpp
           sed -i 's|uid_t uid = getuid();|unsigned int uid = getuid();|' src/device.cpp
           sed -i 's|htons(length)|gourou_htons(length)|' src/libgourou.cpp
+          # adept_activate trata "C:\..." como relativo (checa '/' POSIX) e
+          # prefixa o cwd -> caminho invalido. Forca o branch absoluto.
+          perl -pi -e "s/_outputDir\[0\] != '\/'/0/" utils/adept_activate.cpp
+          grep -n "_outputDir\[0\]" utils/adept_activate.cpp || true
 
           echo "=== forca o -include nos Makefiles ==="
           sed -i 's|-I./lib/updfparser/include|-I./lib/updfparser/include -include $(CURDIR)/win_compat.h|' Makefile
